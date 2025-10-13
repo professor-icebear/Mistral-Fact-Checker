@@ -20,6 +20,7 @@
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Quick Start](#-quick-start)
+- [Live Deployment](#-live-deployment)
 - [Installation](#-installation)
 - [API Documentation](#-api-documentation)
 - [Architecture](#-architecture)
@@ -130,6 +131,12 @@ npm run dev
 ```
 http://localhost:3000
 ```
+
+## 🌐 Live Deployment
+
+The application is deployed and accessible online:
+- **Frontend**: Hosted on Netlify at [https://fanciful-jelly-4022e8.netlify.app/](https://fanciful-jelly-4022e8.netlify.app/)
+- **Backend**: Hosted on Railway
 
 ## 📁 Project Structure
 
@@ -245,16 +252,16 @@ cat > .env.local << EOF
 NEXT_PUBLIC_API_URL=http://localhost:8000
 
 # Password Protection
-# Set a custom password to protect app access (default: mistral2024)
-NEXT_PUBLIC_APP_PASSWORD=mistral2024
+# Set a password to protect app access (required)
+NEXT_PUBLIC_APP_PASSWORD=your_password_here
 EOF
 ```
 
 **🔒 Password Protection:**
-The app is now protected with a password gate. When deployed:
+The app is protected with a password gate. When deployed:
 - Users will see a password prompt before accessing the fact checker
-- Change `NEXT_PUBLIC_APP_PASSWORD` to your desired password
-- Default password is `mistral2024`
+- Set `NEXT_PUBLIC_APP_PASSWORD` environment variable to your desired password
+- This environment variable is required (no default fallback)
 - Authentication persists in session storage
 
 3. **Run development server:**

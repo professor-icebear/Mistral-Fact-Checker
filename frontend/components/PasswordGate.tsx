@@ -27,8 +27,7 @@ export default function PasswordGate({ children }: PasswordGateProps) {
     e.preventDefault();
     setError('');
 
-    // The password is "mistral2024" - you can change this
-    const correctPassword = process.env.NEXT_PUBLIC_APP_PASSWORD || 'mistral2025';
+    const correctPassword = process.env.NEXT_PUBLIC_APP_PASSWORD;
 
     if (password === correctPassword) {
       sessionStorage.setItem('fact_checker_authenticated', 'true');
