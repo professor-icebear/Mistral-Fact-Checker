@@ -92,7 +92,7 @@ This project demonstrates:
 
 **1. Clone and navigate:**
 ```bash
-cd mistral-interview
+cd Mistral-Fact-Checker
 ```
 
 **2. Backend setup:**
