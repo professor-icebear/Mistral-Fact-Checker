@@ -54,6 +54,7 @@ This project demonstrates:
 ### Technical Features
 - 🎨 **Mistral Design System** - Official color palette and styling
 - 📱 **Responsive Design** - Works on all devices
+- 🔐 **Password Protection** - Secure access with customizable password
 - 🔒 **Type Safety** - Full TypeScript + Pydantic validation
 - 🪵 **Logging** - Structured logging throughout
 - 🛡️ **Error Handling** - Custom exceptions and proper HTTP codes
@@ -150,7 +151,8 @@ mistral-interview/
 │   │   └── globals.css        # Global styles + Mistral tokens
 │   ├── components/
 │   │   ├── FactChecker.tsx    # Input component (text/url/image)
-│   │   └── FactCard.tsx       # Results display component
+│   │   ├── FactCard.tsx       # Results display component
+│   │   └── PasswordGate.tsx   # Password protection component
 │   ├── lib/
 │   │   └── api.ts             # API client functions
 │   ├── types/
@@ -235,11 +237,25 @@ Dependencies include:
 - `axios` - HTTP client
 - `lucide-react` - Icons
 
-2. **Configure (optional):**
+2. **Configure:**
 ```bash
-# Create .env.local if backend isn't on localhost:8000
-echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
+# Create .env.local file
+cat > .env.local << EOF
+# Backend API URL (default: http://localhost:8000)
+NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# Password Protection
+# Set a custom password to protect app access (default: mistral2024)
+NEXT_PUBLIC_APP_PASSWORD=mistral2024
+EOF
 ```
+
+**🔒 Password Protection:**
+The app is now protected with a password gate. When deployed:
+- Users will see a password prompt before accessing the fact checker
+- Change `NEXT_PUBLIC_APP_PASSWORD` to your desired password
+- Default password is `mistral2024`
+- Authentication persists in session storage
 
 3. **Run development server:**
 ```bash

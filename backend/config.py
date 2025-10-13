@@ -19,7 +19,14 @@ class Settings(BaseSettings):
     port: int = 8000
     
     # CORS Configuration
-    cors_origins: List[str] = ["http://localhost:3000", "http://localhost:3001"]
+    # Can be set via environment variable as comma-separated string
+    # e.g., CORS_ORIGINS="http://localhost:3000,https://your-app.netlify.app"
+    cors_origins: str = "http://localhost:3000,http://localhost:3001"
+    
+    @property
+    def cors_origins_list(self) -> List[str]:
+        """Convert comma-separated CORS origins to list"""
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
     
     # Mistral AI Configuration
     mistral_text_model: str = "mistral-large-latest"

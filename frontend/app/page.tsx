@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import FactChecker from '@/components/FactChecker';
 import FactCard from '@/components/FactCard';
+import PasswordGate from '@/components/PasswordGate';
 import { FactCheckResult } from '@/types';
 
 export default function Home() {
@@ -25,6 +26,7 @@ export default function Home() {
   };
 
   return (
+    <PasswordGate>
     <main className="min-h-screen bg-gradient-to-br from-mistral-dark via-mistral-gray to-mistral-dark">
       {/* Header */}
       <header className="border-b border-mistral-light-gray bg-mistral-dark/50 backdrop-blur-sm">
@@ -97,5 +99,6 @@ export default function Home() {
         </div>
       </footer>
     </main>
+    </PasswordGate>
   );
 }
