@@ -10,6 +10,8 @@
 
 **AI-Powered Fact Checking Application**
 
+[Live Demo](https://fanciful-jelly-4022e8.netlify.app/) • [API Docs](http://localhost:8000/docs)
+
 </div>
 
 ---
@@ -17,656 +19,321 @@
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
+- [AI Integration](#-ai-integration)
 - [Features](#-features)
-- [Tech Stack](#-tech-stack)
 - [Quick Start](#-quick-start)
-- [Live Deployment](#-live-deployment)
-- [Installation](#-installation)
 - [API Documentation](#-api-documentation)
 - [Architecture](#-architecture)
-- [Best Practices](#-best-practices)
 - [Testing](#-testing)
 - [Troubleshooting](#-troubleshooting)
 
 ## 🎯 Overview
 
-Mistral Fact Checker is a production-ready web application that leverages Mistral AI's powerful language models to verify and fact-check information from multiple sources: text, URLs, and images. Built with modern best practices, clean architecture, and beautiful UI following Mistral's design guidelines.
+Production-ready fact-checking application leveraging Mistral AI's language models to verify information from text, URLs, and images. Built for the **Mistral AI Software Engineer internship**, demonstrating full-stack development skills, AI integration expertise, and production best practices.
 
-**Built for Mistral AI Interview Process**
+**Key Highlights:**
+- ✅ Clean, modular architecture with separation of concerns
+- ✅ Production-ready error handling and type safety
+- ✅ Advanced AI integration with structured prompts and source validation
+- ✅ Beautiful UI following Mistral design system
 
-This project demonstrates:
-- ✅ Clean code architecture with separation of concerns
-- ✅ Production-ready backend with proper error handling
-- ✅ Type-safe frontend and backend
-- ✅ Modern UI/UX following Mistral design system
-- ✅ Comprehensive documentation
-- ✅ Best practices in both Python and TypeScript
+## 🤖 AI Integration
+
+### Mistral Models Used
+
+**Text & URL Analysis:** `mistral-large-latest`
+- Best-in-class reasoning and comprehensive fact-checking
+- Structured output with JSON mode for reliable parsing
+
+**Image Analysis:** `pixtral-large-latest`
+- Multimodal vision model for OCR and visual content understanding
+- Processes images up to 10MB
+
+### Prompt Engineering Strategy
+
+The application uses **structured prompting** with explicit instructions for consistent, high-quality outputs:
+
+```python
+# Example prompt structure (services.py)
+system_prompt = """You are a fact-checking expert. Analyze content and return structured JSON."""
+
+user_prompt = f"""
+Fact-check the following: {content}
+
+Provide:
+1. Rating (0-10): Accuracy score
+2. Confidence (0.0-1.0): Your certainty level
+3. Analysis: Detailed reasoning
+4. Correct/Incorrect aspects: Specific claims with verification
+5. Sources: Credible references with URLs
+"""
+```
+
+### Key Implementation Details
+
+**Temperature Control:** Set to `0.3` for consistent, factual outputs (configurable via `MISTRAL_TEMPERATURE`)
+
+**Response Validation:** Uses Pydantic models to ensure Mistral returns properly structured JSON:
+```python
+class FactCheckResult(BaseModel):
+    rating: float  # 0-10 scale
+    confidence: float  # 0.0-1.0
+    analysis: str
+    correct_aspects: List[str]
+    incorrect_aspects: List[str]
+    sources: List[Source]  # title, url, relevance
+```
+
+**Source Generation:** LLM identifies relevant authoritative sources based on content domain (scientific claims → academic journals, news → reputable outlets)
+
+**Multi-Input Processing:**
+- **Text:** Direct LLM analysis with context awareness
+- **URLs:** Fetches content via `httpx`, extracts text, then analyzes
+- **Images:** Converts to base64, sends to Pixtral with vision-specific prompts
+
+### Output Scoring System
+
+The rating (0-10) is derived from:
+- **Factual accuracy:** Cross-referenced against LLM's knowledge base
+- **Source credibility:** Quality and recency of supporting evidence
+- **Claim specificity:** Verifiable vs. subjective statements
+
+Confidence score reflects the model's certainty based on available information and claim complexity.
 
 ## ✨ Features
 
-### Core Functionality
-- 📝 **Text Fact-Checking** - Verify claims and statements
-- 🔗 **URL Analysis** - Extract and analyze web content
-- 🖼️ **Image Verification** - Use Pixtral vision model for image analysis
-- 📊 **Comprehensive Reports** - Rating (0-10), confidence, detailed analysis, sources
-- 📤 **Share Results** - Easy sharing functionality
-- ⚡ **Real-time Processing** - Fast analysis with beautiful loading states
+**Core Functionality:**
+- 📝 Text, 🔗 URL, and 🖼️ Image fact-checking with comprehensive reports
+- 📊 Structured results: rating, confidence, analysis, sources
+- 📤 Share functionality and responsive design
 
-### Technical Features
-- 🎨 **Mistral Design System** - Official color palette and styling
-- 📱 **Responsive Design** - Works on all devices
-- 🔐 **Password Protection** - Secure access with customizable password
-- 🔒 **Type Safety** - Full TypeScript + Pydantic validation
-- 🪵 **Logging** - Structured logging throughout
-- 🛡️ **Error Handling** - Custom exceptions and proper HTTP codes
-- ⚙️ **Configuration** - Environment-based, validated config
-- 🚀 **Production Ready** - Async/await, connection pooling, security
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **Next.js 14** (App Router) + **TypeScript 5**
-- **Tailwind CSS 3** (Mistral design tokens)
-- **Axios** for API calls
-- **Lucide React** for icons
-
-### Backend
-- **FastAPI 0.115** + **Python 3.9+**
-- **Mistral AI API** (`mistral-large-latest`, `pixtral-large-latest`)
-- **Pydantic** for validation
-- **httpx** for async HTTP
-- **Uvicorn** ASGI server
-
-### Architecture
-- **Modular Backend**: Separate modules for config, models, services, exceptions
-- **Clean Frontend**: Component-based with proper separation
-- **Dependency Injection**: FastAPI DI for services
-- **Async/Await**: Non-blocking I/O throughout
+**Technical:**
+- 🎨 Mistral design system, 🔐 password protection, 🔒 full type safety
+- 🛡️ Robust error handling, ⚙️ environment-based config
+- 🚀 Async/await, connection pooling, production-ready
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ and npm
-- Python 3.9+
+- Node.js 18+, Python 3.9+
 - Mistral AI API key from [console.mistral.ai](https://console.mistral.ai/)
 
-### Setup
+### Setup & Run
 
-**1. Clone and navigate:**
 ```bash
-cd Mistral-Fact-Checker
-```
-
-**2. Backend setup:**
-```bash
+# Backend
 cd backend
 python3 -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 echo "MISTRAL_API_KEY=your_key_here" > .env
-```
+python main.py  # Runs on http://localhost:8000
 
-**3. Frontend setup:**
-```bash
-cd ../frontend
-npm install
-```
-
-**4. Run both:**
-
-Terminal 1 (Backend):
-```bash
-cd backend
-source venv/bin/activate
-python main.py
-```
-
-Terminal 2 (Frontend):
-```bash
+# Frontend (new terminal)
 cd frontend
-npm run dev
+npm install
+echo "NEXT_PUBLIC_APP_PASSWORD=demo123" > .env.local
+npm run dev  # Runs on http://localhost:3000
 ```
 
-**5. Open browser:**
-```
-http://localhost:3000
-```
+**🌐 Live Demo:** [https://fanciful-jelly-4022e8.netlify.app/](https://fanciful-jelly-4022e8.netlify.app/)
 
-## 🌐 Live Deployment
-
-The application is deployed and accessible online:
-- **Frontend**: Hosted on Netlify at [https://fanciful-jelly-4022e8.netlify.app/](https://fanciful-jelly-4022e8.netlify.app/)
-- **Backend**: Hosted on Railway
+### Tech Stack
+- **Frontend:** Next.js 14, TypeScript, Tailwind CSS, Axios
+- **Backend:** FastAPI, Mistral AI SDK, Pydantic, httpx
+- **Architecture:** Modular design, dependency injection, async/await
 
 ## 📁 Project Structure
 
 ```
-mistral-interview/
-├── backend/                    # FastAPI Backend
-│   ├── main.py                # Application routes and startup
-│   ├── config.py              # Configuration management
-│   ├── models.py              # Pydantic request/response models
-│   ├── services.py            # Business logic (Mistral, URL, Image)
-│   ├── exceptions.py          # Custom exception classes
-│   ├── requirements.txt       # Python dependencies
-│   └── .env                   # Environment variables
-│
-├── frontend/                   # Next.js Frontend
-│   ├── app/
-│   │   ├── layout.tsx         # Root layout
-│   │   ├── page.tsx           # Main page with state management
-│   │   └── globals.css        # Global styles + Mistral tokens
-│   ├── components/
-│   │   ├── FactChecker.tsx    # Input component (text/url/image)
-│   │   ├── FactCard.tsx       # Results display component
-│   │   └── PasswordGate.tsx   # Password protection component
-│   ├── lib/
-│   │   └── api.ts             # API client functions
-│   ├── types/
-│   │   └── index.ts           # TypeScript type definitions
-│   ├── package.json           # Node dependencies
-│   ├── tailwind.config.js     # Tailwind + Mistral colors
-│   └── tsconfig.json          # TypeScript configuration
-│
-├── .gitignore
-└── README.md                   # This file
+backend/
+├── main.py         # FastAPI routes, startup/shutdown
+├── config.py       # Pydantic settings & validation
+├── models.py       # Request/response schemas
+├── services.py     # Mistral AI, URL fetching, image processing
+└── exceptions.py   # Custom exceptions
+
+frontend/
+├── app/page.tsx              # Main UI with state management
+├── components/
+│   ├── FactChecker.tsx       # Input forms (text/url/image)
+│   ├── FactCard.tsx          # Results display
+│   └── PasswordGate.tsx      # Auth component
+├── lib/api.ts                # API client
+└── types/index.ts            # TypeScript interfaces
 ```
 
-## 💻 Installation
+<details>
+<summary><b>⚙️ Configuration Options</b></summary>
 
-### Backend Setup (Detailed)
-
-1. **Create virtual environment:**
+**Backend `.env`:**
 ```bash
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-```
-
-2. **Install dependencies:**
-```bash
-pip install -r requirements.txt
-```
-
-Dependencies include:
-- `fastapi` - Web framework
-- `uvicorn` - ASGI server
-- `mistralai` - Mistral AI SDK
-- `pydantic` & `pydantic-settings` - Validation & config
-- `httpx` - Async HTTP client
-- `python-dotenv` - Environment variables
-
-3. **Configure environment:**
-```bash
-# Create .env file
-cat > .env << EOF
-MISTRAL_API_KEY=your_mistral_api_key_here
-
-# Optional settings with defaults:
-API_TITLE="Mistral Fact Checker API"
-API_VERSION="1.0.0"
-HOST="0.0.0.0"
-PORT=8000
-MISTRAL_TEXT_MODEL="mistral-large-latest"
-MISTRAL_VISION_MODEL="pixtral-large-latest"
+MISTRAL_API_KEY=required
+MISTRAL_TEXT_MODEL=mistral-large-latest
+MISTRAL_VISION_MODEL=pixtral-large-latest
 MISTRAL_TEMPERATURE=0.3
 MAX_IMAGE_SIZE_MB=10
-URL_TIMEOUT_SECONDS=30
-EOF
 ```
 
-4. **Run the server:**
+**Frontend `.env.local`:**
 ```bash
-# Development (auto-reload)
-uvicorn main:app --reload --port 8000
-
-# Production
-python main.py
-```
-
-Server runs at `http://localhost:8000`
-- API Docs: `http://localhost:8000/docs`
-- Health: `http://localhost:8000/health`
-
-### Frontend Setup (Detailed)
-
-1. **Install dependencies:**
-```bash
-cd frontend
-npm install
-```
-
-Dependencies include:
-- `next` - React framework
-- `react` & `react-dom` - UI library
-- `typescript` - Type safety
-- `tailwindcss` - Styling
-- `axios` - HTTP client
-- `lucide-react` - Icons
-
-2. **Configure:**
-```bash
-# Create .env.local file
-cat > .env.local << EOF
-# Backend API URL (default: http://localhost:8000)
 NEXT_PUBLIC_API_URL=http://localhost:8000
-
-# Password Protection
-# Set a password to protect app access (required)
-NEXT_PUBLIC_APP_PASSWORD=your_password_here
-EOF
+NEXT_PUBLIC_APP_PASSWORD=your_password
 ```
-
-**🔒 Password Protection:**
-The app is protected with a password gate. When deployed:
-- Users will see a password prompt before accessing the fact checker
-- Set `NEXT_PUBLIC_APP_PASSWORD` environment variable to your desired password
-- This environment variable is required (no default fallback)
-- Authentication persists in session storage
-
-3. **Run development server:**
-```bash
-npm run dev
-```
-
-4. **Build for production:**
-```bash
-npm run build
-npm start
-```
-
-Frontend runs at `http://localhost:3000`
+</details>
 
 ## 📚 API Documentation
 
+**Interactive Docs:** `http://localhost:8000/docs`
+
 ### Endpoints
 
-#### Health Check
-```
-GET /
-GET /health
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Health check |
+| `POST` | `/api/fact-check/text` | Fact-check text input |
+| `POST` | `/api/fact-check/url` | Fact-check URL content |
+| `POST` | `/api/fact-check/image` | Fact-check image (multipart/form-data) |
 
-Response:
-```json
-{
-  "status": "healthy",
-  "service": "Mistral Fact Checker API",
-  "version": "1.0.0",
-  "mistral_connection": "connected"
-}
-```
-
-#### Fact-Check Text
-```
-POST /api/fact-check/text
-Content-Type: application/json
-```
-
-Request:
-```json
-{
-  "text": "The Earth is flat.",
-  "context": "Optional context"
-}
-```
-
-#### Fact-Check URL
-```
-POST /api/fact-check/url
-Content-Type: application/json
-```
-
-Request:
-```json
-{
-  "url": "https://example.com/article"
-}
-```
-
-#### Fact-Check Image
-```
-POST /api/fact-check/image
-Content-Type: multipart/form-data
-```
-
-Request: Form data with `file` field (image, max 10MB)
-
-### Response Format (All Endpoints)
+### Response Format
 
 ```json
 {
-  "rating": 8.5,
-  "explanation": "Brief explanation of the rating",
-  "confidence": 0.9,
-  "analysis": "Detailed analysis of the content...",
-  "correct_aspects": [
-    "Verified claim 1",
-    "Verified claim 2"
-  ],
-  "incorrect_aspects": [
-    "Misleading claim 1"
-  ],
+  "rating": 8.5,              // 0-10 accuracy score
+  "confidence": 0.9,          // 0.0-1.0 certainty
+  "explanation": "Brief summary",
+  "analysis": "Detailed reasoning",
+  "correct_aspects": ["Verified claim 1", "..."],
+  "incorrect_aspects": ["Misleading claim 1"],
   "sources": [
-    {
-      "title": "NASA Official Website",
-      "url": "https://nasa.gov/...",
-      "relevance": "Primary source for space information"
-    }
+    {"title": "NASA", "url": "https://...", "relevance": "Primary source"}
   ],
-  "timestamp": "2025-10-13T12:00:00.000000",
+  "timestamp": "2025-10-13T12:00:00",
   "input_type": "text|url|image"
 }
 ```
 
-### API Testing
+<details>
+<summary><b>Example Usage</b></summary>
 
-**Using curl:**
 ```bash
-# Text fact-check
-curl -X POST http://localhost:8000/api/fact-check/text \
-  -H "Content-Type: application/json" \
-  -d '{"text": "The Earth orbits the Sun."}'
-
-# URL fact-check
-curl -X POST http://localhost:8000/api/fact-check/url \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://www.nasa.gov"}'
-
-# Image fact-check
-curl -X POST http://localhost:8000/api/fact-check/image \
-  -F "file=@/path/to/image.jpg"
-```
-
-**Using Python:**
-```python
-import requests
-
-response = requests.post(
-    "http://localhost:8000/api/fact-check/text",
-    json={"text": "The Earth is flat."}
-)
-result = response.json()
-print(f"Rating: {result['rating']}/10")
-print(f"Confidence: {result['confidence']}")
-```
-
-## 🏗️ Architecture
-
-### System Design
-
-```
-┌─────────────┐    HTTP    ┌──────────────┐    API    ┌─────────────┐
-│   Next.js   │ ◄────────► │   FastAPI    │ ◄───────► │  Mistral AI │
-│   Frontend  │            │   Backend    │           │     API     │
-└─────────────┘            └──────────────┘           └─────────────┘
-```
-
-### Backend Architecture
-
-**Modular Design with Separation of Concerns:**
-
-- **`main.py`** - FastAPI routes, startup/shutdown, middleware
-- **`config.py`** - Pydantic Settings for configuration validation
-- **`models.py`** - Request/response Pydantic models
-- **`services.py`** - Business logic:
-  - `MistralService` - AI interactions
-  - `URLFetcherService` - URL content fetching
-  - `ImageProcessorService` - Image processing
-- **`exceptions.py`** - Custom exception classes with proper HTTP codes
-
-**Key Patterns:**
-- Dependency Injection for services
-- Async/await for non-blocking I/O
-- Lifespan events for startup/shutdown
-- Global exception handlers
-- Structured logging
-
-### Frontend Architecture
-
-**Component-Based Design:**
-
-- **`app/page.tsx`** - Main page with state management
-- **`components/FactChecker.tsx`** - Input handling (text/URL/image)
-- **`components/FactCard.tsx`** - Results display
-- **`lib/api.ts`** - API client with axios
-- **`types/index.ts`** - TypeScript interfaces
-
-**Key Features:**
-- React hooks for state management
-- Client-side components (`'use client'`)
-- Type-safe API calls
-- Error boundaries
-- Loading states
-
-### Data Flow
-
-1. User inputs content via `FactChecker` component
-2. Frontend validates and sends to backend API
-3. Backend processes, calls Mistral AI
-4. Mistral AI analyzes and returns structured JSON
-5. Backend validates response with Pydantic
-6. Frontend displays in `FactCard` component
-
-## 🎯 Best Practices
-
-### Code Quality
-
-**Backend:**
-- ✅ Full type hints throughout
-- ✅ Comprehensive docstrings
-- ✅ PEP 8 style guide
-- ✅ Modular, DRY code
-- ✅ Clear separation of concerns
-
-**Frontend:**
-- ✅ TypeScript strict mode
-- ✅ Component-based architecture
-- ✅ Props typing with interfaces
-- ✅ ESLint rules
-- ✅ Consistent naming conventions
-
-### Error Handling
-
-- ✅ Custom exception classes
-- ✅ Proper HTTP status codes
-- ✅ User-friendly error messages
-- ✅ Global exception handlers
-- ✅ Try-catch blocks with logging
-
-### Security
-
-- ✅ Input validation (Pydantic)
-- ✅ File size limits enforced
-- ✅ Timeout protection on requests
-- ✅ Environment variables for secrets
-- ✅ CORS configuration
-- ✅ No sensitive data in code
-
-### Performance
-
-- ✅ Async/await throughout
-- ✅ Non-blocking I/O
-- ✅ Connection pooling
-- ✅ Content size limits
-- ✅ Efficient data processing
-- ✅ Lazy loading of services
-
-### Monitoring & Logging
-
-- ✅ Structured logging
-- ✅ Request/response logging
-- ✅ Error tracking
-- ✅ Health check endpoints
-- ✅ Performance metrics in logs
-
-### Configuration
-
-- ✅ Environment-based config
-- ✅ Type-safe settings (Pydantic Settings)
-- ✅ Sensible defaults
-- ✅ Validation on startup
-- ✅ Documented options
-
-## 🧪 Testing
-
-### Automated Tests
-
-**Backend Unit Tests:**
-```bash
-cd backend
-source venv/bin/activate  # or venv\Scripts\activate on Windows
-pytest test_main.py -v
-```
-
-The test suite includes:
-- ✅ Health check endpoints
-- ✅ Text fact-checking with validation
-- ✅ URL fact-checking with mocking
-- ✅ Image fact-checking
-- ✅ Response structure validation
-- ✅ Error handling for invalid inputs
-
-All tests use mocked Mistral AI service to avoid API calls during testing.
-
-### Manual Testing
-
-**Frontend:**
-1. Open http://localhost:3000
-2. Test each input type:
-   - **Text**: "The Earth is flat"
-   - **URL**: "https://www.nasa.gov"
-   - **Image**: Upload screenshot with text
-3. Verify results display correctly
-4. Test share functionality
-5. Test responsive design (mobile/tablet/desktop)
-
-**Backend:**
-```bash
-# Health check
-curl http://localhost:8000/health
-
-# Test text endpoint
+# Text
 curl -X POST http://localhost:8000/api/fact-check/text \
   -H "Content-Type: application/json" \
   -d '{"text": "Water boils at 100°C at sea level."}'
 
-# Check API docs
-open http://localhost:8000/docs
+# URL
+curl -X POST http://localhost:8000/api/fact-check/url \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://www.nasa.gov"}'
+
+# Image
+curl -X POST http://localhost:8000/api/fact-check/image \
+  -F "file=@image.jpg"
+```
+</details>
+
+## 🏗️ Architecture
+
+```
+┌─────────────┐          ┌──────────────┐          ┌─────────────┐
+│   Next.js   │  ◄────►  │   FastAPI    │  ◄────►  │  Mistral AI │
+│   Frontend  │   HTTP   │   Backend    │   API    │   (LLM)     │
+└─────────────┘          └──────────────┘          └─────────────┘
 ```
 
-### Type Checking
+### Backend: Modular Design
+- **`main.py`** - FastAPI routes, lifespan events, global exception handlers
+- **`services.py`** - `MistralService`, `URLFetcherService`, `ImageProcessorService`
+- **`models.py`** - Pydantic request/response validation
+- **`config.py`** - Type-safe settings with Pydantic Settings
+- **`exceptions.py`** - Custom exceptions with HTTP codes
 
-**Frontend:**
-```bash
-cd frontend
-npm run type-check
-```
+**Patterns:** Dependency injection, async/await, structured logging
 
-**Backend:**
+### Frontend: Component-Based
+- **`page.tsx`** - State management (useState, error handling)
+- **`FactChecker.tsx`** - Input forms with validation
+- **`FactCard.tsx`** - Results display with responsive design
+- **`api.ts`** - Axios client with error handling
+
+**Patterns:** React hooks, TypeScript strict mode, type-safe API calls
+
+## 🎯 Best Practices Implemented
+
+**Security:** Input validation (Pydantic), file size limits, timeouts, env secrets, CORS  
+**Performance:** Async/await, non-blocking I/O, connection pooling  
+**Code Quality:** Full type hints, modular architecture, PEP 8, ESLint  
+**Error Handling:** Custom exceptions, proper HTTP codes, global handlers  
+**Monitoring:** Structured logging, health checks, request/response tracking
+
+## 🧪 Testing
+
+### Run Tests
 ```bash
 cd backend
-mypy main.py  # (if mypy installed)
+source venv/bin/activate
+pytest test_main.py -v
+```
+
+**Coverage:** Health checks, text/URL/image fact-checking, response validation, error handling  
+**Note:** Tests use mocked Mistral AI service (no API calls)
+
+### Quick Manual Test
+```bash
+# Backend health
+curl http://localhost:8000/health
+
+# Test fact-checking
+curl -X POST http://localhost:8000/api/fact-check/text \
+  -H "Content-Type: application/json" \
+  -d '{"text": "The Earth orbits the Sun."}'
+
+# Frontend: Open http://localhost:3000
+# Try text, URL (nasa.gov), and image inputs
 ```
 
 ## 🐛 Troubleshooting
 
-### Backend Issues
+<details>
+<summary><b>Common Issues</b></summary>
 
-**"MISTRAL_API_KEY environment variable is required"**
+**Backend**
 ```bash
-cd backend
-echo "MISTRAL_API_KEY=your_key_here" > .env
-```
+# Missing API key
+echo "MISTRAL_API_KEY=your_key" > backend/.env
 
-**"Port already in use"**
-```bash
-# Kill process on port 8000
+# Port already in use
 lsof -ti:8000 | xargs kill -9
 
-# Or use different port
-PORT=8001 python main.py
-```
-
-**"Module not found" errors**
-```bash
+# Module not found
 pip install -r requirements.txt
-# Make sure pydantic-settings is installed
-pip install pydantic-settings
 ```
 
-### Frontend Issues
-
-**"Module not found: Can't resolve 'tailwindcss'"**
+**Frontend**
 ```bash
-cd frontend
-rm -rf .next node_modules package-lock.json
-npm install
-npm run dev
+# Connection refused
+# → Ensure backend is running on port 8000
+# → Check NEXT_PUBLIC_API_URL in .env.local
+
+# Build errors
+rm -rf .next node_modules && npm install
 ```
 
-**"Connection refused" when calling API**
-- Ensure backend is running on port 8000
-- Check `.env.local` for correct API URL
-- Verify CORS settings in backend
-
-**Build errors**
-```bash
-# Clean build
-rm -rf .next
-npm run build
-```
-
-### General Issues
-
-**Disk space errors**
-```bash
-# Clean npm cache
-npm cache clean --force
-
-# Clean Python cache
-find . -type d -name "__pycache__" -exec rm -r {} +
-```
-
-**API returns errors**
+**API Errors**
 - Check backend logs for details
-- Verify Mistral AI API key is valid
-- Check API rate limits
+- Verify Mistral API key is valid
 - Ensure proper JSON format in requests
+</details>
 
-## 📦 Dependencies
-
-### Backend
-```
-fastapi==0.115.0              # Web framework
-uvicorn[standard]==0.30.6     # ASGI server
-mistralai==1.2.0              # Mistral AI SDK
-pydantic==2.9.2               # Data validation
-pydantic-settings==2.5.2      # Config management
-httpx==0.27.2                 # Async HTTP client
-python-multipart==0.0.9       # File upload support
-python-dotenv==1.0.1          # Environment variables
-```
-
-### Frontend
-```
-next: 14.2.18                 # React framework
-react: 18.3.1                 # UI library
-typescript: 5                 # Type safety
-tailwindcss: 3.4.1            # Styling
-axios: 1.7.7                  # HTTP client
-lucide-react: 0.451.0         # Icons
-```
-
-## 🔄 Development Workflow
-
-1. **Make changes** to code
-2. **Server auto-reloads** (in dev mode)
-3. **Test via UI** or `/docs`
-4. **Check logs** for errors
-5. **Type check** before committing
-6. **Commit** with clear messages
+---
 
 ## 📄 License
 
-This project is created for the Mistral AI interview process.
+Created for the Mistral AI interview process.
+
+## 🔗 Resources
+
+- **Mistral AI Documentation:** [docs.mistral.ai](https://docs.mistral.ai)
+- **FastAPI Docs:** [fastapi.tiangolo.com](https://fastapi.tiangolo.com)
+- **Next.js Docs:** [nextjs.org/docs](https://nextjs.org/docs)
