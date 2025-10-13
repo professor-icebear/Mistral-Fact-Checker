@@ -487,6 +487,25 @@ print(f"Confidence: {result['confidence']}")
 
 ## 🧪 Testing
 
+### Automated Tests
+
+**Backend Unit Tests:**
+```bash
+cd backend
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pytest test_main.py -v
+```
+
+The test suite includes:
+- ✅ Health check endpoints
+- ✅ Text fact-checking with validation
+- ✅ URL fact-checking with mocking
+- ✅ Image fact-checking
+- ✅ Response structure validation
+- ✅ Error handling for invalid inputs
+
+All tests use mocked Mistral AI service to avoid API calls during testing.
+
 ### Manual Testing
 
 **Frontend:**
