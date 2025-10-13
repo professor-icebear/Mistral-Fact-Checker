@@ -92,7 +92,7 @@ This project demonstrates:
 
 **1. Clone and navigate:**
 ```bash
-cd mistral-interview
+cd Mistral-Fact-Checker
 ```
 
 **2. Backend setup:**
@@ -487,6 +487,25 @@ print(f"Confidence: {result['confidence']}")
 
 ## 🧪 Testing
 
+### Automated Tests
+
+**Backend Unit Tests:**
+```bash
+cd backend
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pytest test_main.py -v
+```
+
+The test suite includes:
+- ✅ Health check endpoints
+- ✅ Text fact-checking with validation
+- ✅ URL fact-checking with mocking
+- ✅ Image fact-checking
+- ✅ Response structure validation
+- ✅ Error handling for invalid inputs
+
+All tests use mocked Mistral AI service to avoid API calls during testing.
+
 ### Manual Testing
 
 **Frontend:**
@@ -592,31 +611,6 @@ find . -type d -name "__pycache__" -exec rm -r {} +
 - Check API rate limits
 - Ensure proper JSON format in requests
 
-## 🎨 Mistral Design System
-
-The application follows Mistral AI's design guidelines:
-
-### Colors
-```css
---mistral-orange: #FF7000    /* Primary */
---mistral-dark: #0F0F0F      /* Background */
---mistral-gray: #1A1A1A      /* Surface */
---mistral-light-gray: #2A2A2A /* Borders */
---mistral-text: #E5E5E5      /* Text */
---mistral-accent: #FF8533    /* Hover states */
-```
-
-### Typography
-- Font: Inter (Google Fonts)
-- Weights: 300, 400, 500, 600, 700, 800
-
-### Components
-- Rounded corners (12-24px)
-- Smooth transitions (0.3s ease)
-- Orange accent highlights
-- Dark theme throughout
-- Subtle shadows and gradients
-
 ## 📦 Dependencies
 
 ### Backend
@@ -650,42 +644,6 @@ lucide-react: 0.451.0         # Icons
 5. **Type check** before committing
 6. **Commit** with clear messages
 
-## 📈 Future Enhancements
-
-- [ ] User authentication
-- [ ] Save fact-check history
-- [ ] Export results as PDF
-- [ ] Batch processing
-- [ ] Rate limiting
-- [ ] Caching (Redis)
-- [ ] Database integration
-- [ ] WebSocket for real-time updates
-- [ ] Docker containerization
-- [ ] CI/CD pipeline
-- [ ] Monitoring (Prometheus/Grafana)
-- [ ] Browser extension
-
 ## 📄 License
 
 This project is created for the Mistral AI interview process.
-
-## 👤 Author
-
-Built with ❤️ for Mistral AI
-
-## 🙏 Acknowledgments
-
-- **Mistral AI** - Powerful language models
-- **Next.js** - Amazing React framework
-- **FastAPI** - Modern Python web framework
-- **Tailwind CSS** - Utility-first CSS
-
----
-
-<div align="center">
-
-**Made with Mistral AI** • **Built for Excellence**
-
-🚀 Ready for Production • ✨ Clean Code • 📚 Well Documented
-
-</div>
